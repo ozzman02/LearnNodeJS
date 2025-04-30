@@ -11,11 +11,8 @@ var mongo = require('mongodb');
 var mongoose = require('mongoose');
 var db = mongoose.connection;
 var createError = require('http-errors');
+
 //const expressValidator = require('express-validator');
-
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-
 //const { ExpressValidator } = require('express-validator');
 //const { default: mongoose } = require('mongoose');
 
@@ -31,6 +28,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+const bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 /* Handle Sessions */
 app.use(session({
@@ -50,6 +51,8 @@ app.use(function(req, res, next) {
   next();
 });
 
+var indexRouter = require('./routes/index');
+var usersRouter = require('./routes/users');
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);

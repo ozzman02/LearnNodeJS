@@ -2,6 +2,9 @@ var express = require('express');
 var router = express.Router();
 var multer = require('multer');
 var upload = multer({dest: './uploads'});
+var User = require('../models/user');
+
+
 
 const { check, validationResult } = require('express-validator');
 
@@ -37,7 +40,7 @@ router.get('/login', function(req, res, next) {
   res.render('login', {title: 'Login'});
 });
 
-router.post('/register', 
+router.post('/register', upload.single('profileimage'),
   [
     check('name').notEmpty().withMessage('Name is required'),
     check('email').notEmpty()
@@ -52,12 +55,20 @@ router.post('/register',
       return true;
     })
   ],
-  upload.single('profileimage'), function(req, res, next) {
+  function(req, res, next) {
+
+    /* Ensure the request data is intact. */
+    console.log("Request Body:", req.body)
+
+    var name = req.body.name;
+    var email = req.body.email;
+    var username = req.body.username;
+    var password = req.body.password;
+    var password2 = req.body.password;
 
     /* Validation inline syntax with custom error formatter function */
     const errors = validationResult(req).formatWith(formatError);
-
-
+    
     /* 
       Custom error formatter function as argument of formatWith function
 
@@ -83,16 +94,28 @@ router.post('/register',
         errors: errors.array()
       });
     } else {
-      console.log('No Errors');
+      //console.log('No Errors');
+      var newUser = new User({
+        name: name,
+        email: email,
+        username: username,
+        password: password,
+        profileimage: profileimage
+      });
+      User.createUser(newUser, function(err, user) {
+        if (err) throw err;
+        console.log(user);
+      });
+      
+      console.log('User saved successfully!');
+      req.flash('success', 'You are now registered and can log in');
+      
+      res.location('/');
+      res.redirect('/');
     }
 
-    var name = req.body.name;
-    var email = req.body.email;
-    var username = req.body.username;
-    var password = req.body.password;
-    var password2 = req.body.password;
-    
-    //console.log(req.file);
+    console.log(req.file);
+
     
     if (req.file) {
       console.log('Uploading File');
@@ -101,9 +124,6 @@ router.post('/register',
       console.log('No file Uploaded...');
       var profileimage = 'noimage.jpg';
     }
-
-  
-
 
 });
 
