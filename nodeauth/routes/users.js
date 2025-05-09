@@ -3,7 +3,8 @@ var router = express.Router();
 var multer = require('multer');
 var upload = multer({dest: './uploads'});
 var User = require('../models/user');
-
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
 
 
 const { check, validationResult } = require('express-validator');
@@ -39,6 +40,47 @@ router.get('/register', function(req, res, next) {
 router.get('/login', function(req, res, next) {
   res.render('login', {title: 'Login'});
 });
+
+router.post('/login', 
+  passport.authenticate('local', { failureRedirect: '/users/login', failureFlash: 'Invalid username or password'} ),
+  function(req, res) {
+    res.redirect('/users/' + req.user.username);
+    req.flash('success', 'You are no logged in');
+    res.redirect('/');
+  }
+);
+
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async function(id, done) {
+  try {
+    const user = await User.getUserById(id);
+    done(null, user);
+  } catch (err) {
+    done(err, null);
+  }
+});
+
+
+passport.use(new LocalStrategy(async function(username, password, done) {
+  try {
+    const user = await User.getUserByUsername(username);
+    if (!user) {
+      return done(null, false, { message: 'Unknown User' });
+    }
+    
+    const isMatch = await User.comparePassword(password, user.password);
+    if (isMatch) {
+      return done(null, user);
+    } else {
+      return done(null, false, { message: 'Invalid Password' });
+    }
+  } catch (err) {
+    return done(err);
+  }
+}));
 
 router.post('/register', upload.single('profileimage'),
   [
