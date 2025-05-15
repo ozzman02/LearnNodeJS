@@ -43,6 +43,15 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use((req, res, next) => {
+  if (!req.isAuthenticated() && req.path === '/') {
+    return res.redirect('/users/login');
+  }
+  res.locals.user = req.user || null;
+  next();
+});
+
+
 
 app.use(require('connect-flash')());
 app.use(function(req, res, next) {

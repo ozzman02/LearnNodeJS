@@ -37,10 +37,12 @@ router.get('/register', function(req, res, next) {
   res.render('register', {title: 'Register'});
 });
 
+/* /users/login */
 router.get('/login', function(req, res, next) {
   res.render('login', {title: 'Login'});
 });
 
+/* /users/login */
 router.post('/login', 
   passport.authenticate('local', { failureRedirect: '/users/login', failureFlash: 'Invalid username or password' }),
   function(req, res) {
@@ -51,10 +53,27 @@ router.post('/login',
   }
 );
 
+/*
+  These functions are critical for maintaining user authentication sessions with Passport.
+  Passport.js requires serialization and deserialization to manage authenticated user sessions efficiently.
+*/
+
+/*
+  passport.serializeUser() → Saves User Info in Session
+
+    - When a user logs in, Passport stores only the user’s ID in the session (instead of the whole user object).
+    - This keeps session storage lightweight and avoids storing excessive user data.
+*/
 passport.serializeUser(function(user, done) {
   done(null, user.id);
 });
 
+/*
+  passport.deserializeUser() → Retrieves Full User Info
+
+    - Every time a request is made, Passport fetches the user data based on the stored user.id.
+    - This ensures that req.user contains the full user object in subsequent requests.
+*/
 passport.deserializeUser(async function(id, done) {
   try {
     const user = await User.getUserById(id);
@@ -64,7 +83,11 @@ passport.deserializeUser(async function(id, done) {
   }
 });
 
-
+/*
+  Handles authentication logic by verifying a user's credentials against the database
+  When a login request is sent, Passport runs this strategy (LocalStrategy).
+  It extracts the username and password from the request.
+*/
 passport.use(new LocalStrategy(async function(username, password, done) {
   console.log(`Login attempt for: ${username}`);
   try {
@@ -180,5 +203,23 @@ router.get('/check-auth', (req, res) => {
   }
 });
 
+router.get('/logout', (req, res, next) => {
+  console.log("Logout triggered!");
+  req.logout((err) => {
+    if (err) {
+      console.error("Logout error:", err);
+      return next(err);
+    }
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Session destruction error:", err);
+        return next(err);
+      }
+      res.clearCookie('connect.sid'); // Ensure session is cleared
+      console.log("Session destroyed, redirecting...");
+      res.redirect('/users/login');
+    });
+  });
+});
 
 module.exports = router;
