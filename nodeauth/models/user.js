@@ -3,7 +3,7 @@ var bcrypt = require('bcryptjs');
 
 mongoose.connect('mongodb://localhost/nodeauth');
 
-var db = mongoose.connection;
+//var db = mongoose.connection;
 
 var UserSchema = mongoose.Schema({
     username: {

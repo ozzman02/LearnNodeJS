@@ -42,10 +42,11 @@ router.get('/login', function(req, res, next) {
 });
 
 router.post('/login', 
-  passport.authenticate('local', { failureRedirect: '/users/login', failureFlash: 'Invalid username or password'} ),
+  passport.authenticate('local', { failureRedirect: '/users/login', failureFlash: 'Invalid username or password' }),
   function(req, res) {
-    res.redirect('/users/' + req.user.username);
-    req.flash('success', 'You are no logged in');
+    console.log(`User authenticated: ${req.user.username}`);
+    req.flash('success', 'You are now logged in');
+    //res.redirect('/users/' + req.user.username);
     res.redirect('/');
   }
 );
@@ -65,6 +66,7 @@ passport.deserializeUser(async function(id, done) {
 
 
 passport.use(new LocalStrategy(async function(username, password, done) {
+  console.log(`Login attempt for: ${username}`);
   try {
     const user = await User.getUserByUsername(username);
     if (!user) {
@@ -168,5 +170,15 @@ router.post('/register', upload.single('profileimage'),
     }
 
 });
+
+/* Verify Authentication Persistence */
+router.get('/check-auth', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.send(`Logged in as: ${req.user.username}`);
+  } else {
+    res.send('Not authenticated');
+  }
+});
+
 
 module.exports = router;

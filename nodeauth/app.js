@@ -5,10 +5,10 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var passport = require('passport');
-var flash = require('connect-flash');
-var mongo = require('mongodb');
-var mongoose = require('mongoose');
-var db = mongoose.connection;
+
+//var mongo = require('mongodb');
+//var mongoose = require('mongoose');
+//var db = mongoose.connection;
 var createError = require('http-errors');
 
 
@@ -22,17 +22,16 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+app.use(cookieParser());
 /* Handle Sessions */
 app.use(session({
   secret: 'secret',
@@ -49,6 +48,12 @@ app.use(require('connect-flash')());
 app.use(function(req, res, next) {
   res.locals.messages = require('express-messages')(req, res);
   next();
+});
+
+
+app.use((req, res, next) => {
+    console.log(`Received request: ${req.method} ${req.url}`);
+    next();
 });
 
 var indexRouter = require('./routes/index');
