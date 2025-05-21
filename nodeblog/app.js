@@ -4,18 +4,16 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var session = require('express-session');
-var multer = require('multer');
-var upload = multer({ dest: 'uploads/' });
-var moment = require('moment');
-var mongo = require('mongodb');
 
+var mongo = require('mongodb');
 var db = require('monk')('localhost/nodeblog');
 
-
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var postsRouter = require('./routes/posts');
 
 var app = express();
+
+app.locals.moment = require('moment');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -82,7 +80,7 @@ app.use(function(req, res, next) {
 });
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/posts', postsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
