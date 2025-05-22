@@ -36,6 +36,10 @@ p{
 	margin:0;
 }
 
+.post img{
+	width: 100%;
+}
+
 nav{
 	background:#404137;
 	color:#fff;
@@ -112,4 +116,16 @@ select{
 textarea{
 	height:70px;
 	width:400px;
+}
+
+ul.success li {
+	padding: 15px;
+	margin-top: 10px;
+	margin-bottom: 20px;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	color: #3c763d;
+	background-color: #dff0f8;
+	border-color: #d6e9c6;
+	list-style: none;
 }

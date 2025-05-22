@@ -1,19 +1,19 @@
 var express = require("express");
 var router = express.Router();
 var multer = require("multer");
-var upload = multer({ dest: "uploads/" });
+var upload = multer({ dest: "./public/images" });
 var mongo = require("mongodb");
 var db = require("monk")("localhost/nodeblog");
 
-const formatError = require('../utils/errorFormatter'); // Adjust path as needed
+const formatError = require("../utils/errorFormatter");
 const { check, validationResult } = require("express-validator");
 
 router.get("/add", function (req, res, next) {
   var categories = db.get("categories");
   categories.find({}, {}, function (err, categories) {
     res.render("addpost", {
-      'title': "Add Post",
-      'categories': categories
+      title: "Add Post",
+      categories: categories,
     });
   });
 });
@@ -27,12 +27,12 @@ router.post(
   ],
   function (req, res, next) {
     const errors = validationResult(req).formatWith(formatError);
-
     if (!errors.isEmpty()) {
       res.render("addpost", {
         errors: errors.array(),
       });
     } else {
+      console.log(req.body.category);
       var title = req.body.title;
       var category = req.body.category;
       var body = req.body.body;
