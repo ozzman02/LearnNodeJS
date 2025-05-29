@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "gulp": "^4.0.2"
+  },
+  "dependencies": {
+    "graceful-fs": "^4.2.11"
+  }
+}
